@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MW APP - Sua loja, suas vendas</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b12;--panel:#151522;--panel2:#1c1c2b;--purple:#8b5cf6;--purple2:#a78bfa;--text:#f8fafc;--muted:#a1a1b5;--line:#29293b;--green:#25d366}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',Arial,sans-serif;font-size:15px;line-height:1.6}
+button,input,textarea,select{font-family:inherit}
+button{cursor:pointer;border:0;border-radius:12px;padding:11px 16px;background:var(--purple);color:white;font-weight:700;transition:.2s}
+button:hover{opacity:.9;transform:translateY(-1px)}
+.secondary{background:#29293b}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:#101019;padding:15px;z-index:10}
+nav{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{font-size:26px;font-weight:900}.brand span{color:#a78bfa}
+.hero{padding:55px 0;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+h1{font-size:clamp(36px,5vw,58px);line-height:1.1;margin:15px 0;font-weight:900}
+h1 span{color:#a78bfa}
+.muted{color:var(--muted)}
+.panel,.feature,.product{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.features,.products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+label{font-size:13px;font-weight:bold}
+input,textarea,select{width:100%;padding:12px;border-radius:9px;border:1px solid #38384d;background:#0e0e18;color:white}
+textarea{min-height:80px}
+.hidden{display:none!important}
+.product{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.product img{width:100%;height:220px;object-fit:contain;background:#0e0e18;padding:8px;cursor:pointer}
+.productbody{padding:14px;flex:1;display:flex;flex-direction:column;gap:8px}
+.price{font-size:21px;font-weight:bold;color:#c4b5fd}
+.whats{background:#25d366;color:#073b20;width:100%;margin-top:10px}
+.danger{background:#991b1b;margin-top:10px}
+.notice{padding:12px;border:1px solid #7552b8;border-radius:10px;margin:15px 0;color:#e9d5ff}
+.storehead{padding:22px;border-radius:16px;background:linear-gradient(120deg,#32146d,#151525);margin:20px 0;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+footer{border-top:1px solid var(--line);padding:25px;margin-top:40px;color:var(--muted)}
+.avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--line);background:#1c1c2b;display:grid;place-items:center;font-weight:900}
+.toast{position:fixed;right:16px;bottom:16px;z-index:99;display:flex;flex-direction:column;gap:8px}
+.toast div{padding:12px 16px;border-radius:12px;background:#1f1f2e;border:1px solid var(--line)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:grid;place-items:center;z-index:50;padding:20px}
+.modalbox{background:var(--panel);border:1px solid var(--line);border-radius:20px;max-width:520px;width:100%;padding:20px}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:60;display:grid;place-items:center;padding:20px}
+.lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:16px;background:#0e0e18}
+.tabbtns{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+@media(max-width:700px){.hero{grid-template-columns:1fr;padding:25px 0}.features,.products{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:38px}}
+@media(max-width:440px){.features,.products{grid-template-columns:1fr}.wrap{padding:14px}}
+</style>
+</head>
+<body>
+<header>
+<nav>
+<div class="brand">MW <span>APP</span></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<span id="userName" class="muted"></span>
+<button class="secondary" onclick="go('market')">Explorar</button>
+<button onclick="go('dashboard')">Minha loja</button>
+<button class="secondary" id="btnLogout" onclick="logout()" style="display:none">Sair</button>
+</div>
+</nav>
+</header>
+
+<main class="wrap">
+
+<!-- AUTH - NOVO COMPLEMENTO SEM TIRAR NADA DA ORIGINAL -->
+
+<section id="paywall">
+<div style="max-width:480px;margin:40px auto">
+<div class="panel" style="text-align:center">
+<div style="font-size:48px;margin-bottom:10px">🔒</div>
+<h2 style="margin:0">MW APP - 3 dias grátis, depois R$ 5,00/mês</h2>
+<p class="muted">Teste grátis por 3 dias! Sem cartão. Depois, apenas R$5 por mês para manter sua loja online. Cancele quando quiser.</p>
+<div style="background:#0e0e18;border:1px solid #29293b;border-radius:16px;padding:16px;margin:16px 0;text-align:left">
+<p style="margin:6px 0"><strong>💰 Valor:</strong> R$ 5,00 / mês</p>
+<p style="margin:6px 0"><strong>🏦 Banco:</strong> Nubank</p>
+<p style="margin:6px 0"><strong>👤 Nome:</strong> Maycon Wender Souza Barbosa</p>
+<p style="margin:6px 0"><strong>🔑 Pix (CPF/Celular):</strong> 94981414049</p>
+</div>
+
+<div id="trialInfo" style="background:#1a3a2a;border:1px solid #25d366;border-radius:12px;padding:12px;margin:12px 0">
+<p style="margin:0;font-weight:700;color:#25d366">🎉 Você tem <span id="trialDays">3</span> dias grátis!</p>
+<p class="muted" style="margin:4px 0 0;font-size:12px">Teste tudo sem pagar. Após o teste, apenas R$5/mês.</p>
+</div>
+<script>
+setTimeout(()=>{
+ const left=getTrialDaysLeft();
+ const el=document.getElementById('trialDays');
+ if(el) el.textContent=left>0?left:0;
+ const info=document.getElementById('trialInfo');
+ if(info && left<=0){
+  info.innerHTML='<p style="margin:0;font-weight:700;color:#f87171">⏰ Seus 3 dias grátis acabaram!</p><p class="muted" style="margin:4px 0 0;font-size:12px">Pague R$5/mês no Pix 94981414049 para continuar usando.</p>';
+  info.style.background='#3a1a1a';
+  info.style.borderColor='#ef4444';
+ }
+},100);
+</script>
+
+<div style="background:#fff;border-radius:16px;padding:12px;margin:16px auto;max-width:260px">
+<!-- QR Code placeholder - Pix -->
+<div id="pixQR" style="width:100%;height:220px;display:grid;place-items:center;background:#fff;color:#000;border-radius:12px;font-size:12px">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=00020126580014BR.GOV.BCB.PIX01111949814140490214Maycon+Wender52040000530398654045.005802BR5925Maycon+Wender+Souza+Barbosa6009Goiania62070503***6304" alt="QR Pix" style="width:200px;height:200px">
+</div>
+<p style="color:#000;font-size:11px;margin:6px 0 0">Escaneie o QR Code com seu banco</p>
+</div>
+<button class="green" style="width:100%;font-size:16px" onclick="copyPix()">📋 Copiar chave Pix: 94981414049</button>
+<div class="field" style="text-align:left;margin-top:16px"><label>Chave Pix Copia e Cola</label><textarea id="pixCopiaCola" readonly style="font-size:12px">00020126580014BR.GOV.BCB.PIX01111949814140490214Maycon Wender52040000530398654045.005802BR5925Maycon Wender Souza Barbosa6009Goiania62070503***6304</textarea></div>
+<p class="muted" style="font-size:12px;margin-top:12px">Plano mensal R$5/mês. Após pagar o mês, clique em "Já paguei" para liberar. Renove todo mês no mesmo Pix.</p>
+<button style="width:100%;margin-top:10px" onclick="confirmPayment()">✅ Já paguei os R$5 do mês</button>
+<p class="muted" style="font-size:11px;margin-top:10px">Dúvidas? Chame no WhatsApp: 94 98141-4049</p>
+
+<div style="margin-top:16px;border-top:1px solid #29293b;padding-top:12px">
+<p class="muted" style="font-size:12px">É o criador?</p>
+<button class="secondary" style="width:100%;font-size:13px" onclick="creatorAccess()">👑 Acesso Criador - Sem pagar</button>
+</div>
+
+</div>
+</div>
+</section>
+
+<section id="auth" class="hidden">
+<div style="max-width:460px;margin:50px auto">
+<div class="panel">
+<h2 style="margin:0">Crie sua conta - MW APP</h2>
+<p class="muted"></p>
+<form id="formSignup">
+<div class="field"><label>Nome</label><input id="suName" required placeholder=""></div>
+<div class="field"><label>Email</label><input id="suEmail" type="email" required placeholder=""></div>
+<div class="field"><label>WhatsApp com DDD</label><input id="suWhats" required placeholder=""></div>
+<div class="field"><label>Senha</label><input id="suPass" type="password" required placeholder=""></div>
+<div class="field"><label>Confirmar senha</label><input id="suPass2" type="password" required placeholder=""></div>
+<button type="submit" style="width:100%;margin-top:10px">Criar conta</button>
+<p class="muted" style="text-align:center;margin-top:10px">Já tem conta? <a href="#" onclick="toggleAuth();return false" style="color:#a78bfa">Entrar</a></p>
+</form>
+<form id="formLogin" class="hidden">
+<div class="field"><label>Email</label><input id="liEmail" type="email" required placeholder=""></div>
+<div class="field"><label>Senha</label><input id="liPass" type="password" required placeholder=""></div>
+<button type="submit" style="width:100%">Entrar</button>
+<p class="muted" style="text-align:center;margin-top:10px">Não tem conta? <a href="#" onclick="toggleAuth();return false" style="color:#a78bfa">Criar conta</a></p>
+</form>
+
+<div style="margin-top:16px;border-top:1px solid #29293b;padding-top:12px">
+<p class="muted" style="font-size:12px">É o criador?</p>
+<button class="secondary" style="width:100%;font-size:13px" onclick="creatorAccess()">👑 Acesso Criador - Sem pagar</button>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- HOME - ORIGINAL MANTIDA -->
+<section id="home" class="hidden">
+<div class="hero">
+<div>
+<p>✦ SUA LOJA NO DIGITAL</p>
+<h1>Crie sua loja.<br><span>Venda do seu jeito.</span></h1>
+<p class="muted">Crie sua vitrine online, publique produtos com até 7 fotos SEM CORTE e receba pedidos pelo WhatsApp com texto que você escolhe.</p>
+<button onclick="go('dashboard')">＋ Criar minha loja</button>
+<button class="secondary" onclick="go('market')">Ver produtos</button>
+</div>
+<div class="panel">
+<h2>🛍 MW APP</h2>
+<h3>Sua próxima venda começa aqui!</h3>
+<p>🎧 Fones, acessórios, roupas e muito mais.</p>
+<p>💬 Compre diretamente pelo WhatsApp.</p>
+<p>📲 Divulgação com texto editável pelo vendedor</p>
+</div>
+</div>
+<h2>Uma loja completa, do seu jeito</h2>
+<div class="features">
+<div class="feature"><h3>🎨 Personalização</h3><p class="muted">Escolha nome, cor, foto de perfil da galeria e descrição.</p></div>
+<div class="feature"><h3>🖼 Até 7 fotos SEM CORTE</h3><p class="muted">Contain, não corta. Lightbox com carrossel.</p></div>
+<div class="feature"><h3>💬 WhatsApp</h3><p class="muted">Vender e divulgar com texto que você escolhe.</p>
+<div style="margin-top:16px;border-top:1px solid #29293b;padding-top:12px">
+<p class="muted" style="font-size:12px">É o criador?</p>
+<button class="secondary" style="width:100%;font-size:13px" onclick="creatorAccess()">👑 Acesso Criador - Sem pagar</button>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- DASHBOARD - ORIGINAL + COMPLEMENTOS -->
+<section id="dashboard" class="hidden">
+<h2>Crie sua loja - MW APP </h2>
+<div class="notice">Esta versão salva os dados neste navegador. Complementada com foto de perfil, foto sem corte, canais Facebook/Marketplace e divulgação WhatsApp editável. </div>
+
+<div class="tabbtns">
+<button class="secondary" onclick="tab('store')">Loja</button>
+<button class="secondary" onclick="tab('prod')">Produtos</button>
+<button class="secondary" onclick="tab('divulga')">Divulgação WhatsApp</button>
+<button class="secondary" onclick="tab('canal')">Facebook e Marketplace</button>
+</div>
+
+<!-- ABA LOJA - ORIGINAL MANTIDA + FOTO PERFIL + NOVOS CAMPOS -->
+<div id="tab-store">
+<div class="panel">
+<form id="storeForm">
+<div class="field"><label>Foto de perfil da loja (galeria) - NOVO</label><input id="storeAvatar" type="file" accept="image/*"><div id="avPreview" style="margin-top:8px"></div></div>
+<div class="field"><label>Nome da loja *</label><input id="storeName" required placeholder="Ex.: MW Imports"></div>
+<div class="field"><label>WhatsApp com DDD e código do país *</label><input id="storeWhats" required placeholder="5562999999999"></div>
+<div class="field"><label>Categoria - NOVO</label><select id="storeCat"><option value="">Selecione</option><option>Moda</option><option>Eletrônicos</option><option>Acessórios</option><option>Casa</option><option>Beleza</option><option>Outros</option></select></div>
+<div class="field"><label>Cidade - NOVO</label><input id="storeCity" placeholder=""></div>
+<div class="field"><label>Descrição</label><textarea id="storeDesc" placeholder="O que sua loja vende?"></textarea></div>
+<div class="field"><label>Cor principal</label><input id="storeColor" type="color" value="#8b5cf6"></div>
+<div class="field"><label>Frase de destaque</label><input id="storeSlogan" placeholder="Ofertas especiais para você"></div>
+<div class="field"><label>Instagram @ - NOVO</label><input id="storeInsta" placeholder=""></div>
+<button type="submit">Salvar minha loja</button>
+</form>
+</div>
+</div>
+
+<!-- ABA PRODUTOS - ORIGINAL MANTIDA + SEM CORTE -->
+<div id="tab-prod" class="hidden">
+<div class="panel">
+<h3>＋ Cadastrar produto</h3>
+<form id="productForm">
+<div class="field"><label>Nome do produto *</label><input id="pName" required></div>
+<div class="field"><label>Preço em reais *</label><input id="pPrice" required type="number" min="0.01" step="0.01"></div>
+<div class="field"><label>Estoque</label><input id="pStock" type="number" min="0" value="1"></div>
+<div class="field"><label>Escolha até 5 fotos - SEM CORTE (preview na hora)</label><input id="pImages" type="file" accept="image/*" multiple></div>
+<div id="imageCount" class="muted">Nenhuma foto selecionada.</div><div id="previewGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px"></div>
+<div class="field"><label>Descrição do produto</label><textarea id="pDesc"></textarea></div>
+<button type="submit">Adicionar produto</button>
+</form>
+</div>
+<h3>Meus produtos</h3>
+<div id="myProducts" class="products"></div>
+</div>
+
+<!-- ABA DIVULGAÇÃO - NOVO COMPLEMENTO -->
+<div id="tab-divulga" class="hidden">
+<div class="panel">
+<h3>📲 Divulgação WhatsApp - Você escolhe o texto</h3>
+<p class="muted">Escreva o texto que será enviado quando divulgar loja e produtos no WhatsApp. Campos limpos.</p>
+<div class="field"><label>Texto de divulgação da loja</label><textarea id="divulgaLoja" placeholder="Olá! Conheça minha loja MW APP com ofertas imperdíveis!"></textarea></div>
+<div class="field"><label>Texto padrão de produto</label><textarea id="divulgaProd" placeholder="Olha esse produto novo que acabou de chegar!"></textarea></div>
+<button onclick="saveDivulga()">Salvar textos de divulgação</button>
+<hr style="margin:20px 0;border-color:#29293b">
+<button class="whats" style="width:100%" onclick="shareStoreCustom()">📲 Divulgar minha loja no WhatsApp com meu texto</button>
+</div>
+</div>
+
+<!-- ABA CANAL - NOVO COMPLEMENTO FACEBOOK MARKETPLACE -->
+<div id="tab-canal" class="hidden">
+<div class="panel">
+<h3>🔗 Conectar com Facebook e Marketplace dentro do app</h3>
+<p class="muted">Aplicativo muito simples antes, agora com canais. Mock local pronto para API Graph.</p>
+<div id="channels"></div>
+<div style="margin-top:16px"><button class="secondary" onclick="exportCSV()">Exportar Feed CSV para Catálogo Facebook</button></div>
+</div>
+</div>
+
+</section>
+
+<!-- MARKET - ORIGINAL MANTIDA -->
+<section id="market" class="hidden">
+<h2>Explore os produtos</h2>
+<input id="search" placeholder="Buscar produto..." oninput="renderMarket()">
+<div id="storeHeader"></div>
+<div id="marketProducts" class="products"></div>
+</section>
+
+</main>
+
+<footer>
+<div class="brand">MW <span>APP</span></div>
+<p>Sua loja. Seus produtos. Suas vendas.  - MW APP</p>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<div id="modalShare" class="modal hidden">
+<div class="modalbox">
+<h3>Editar texto de divulgação</h3>
+<p class="muted">Você escolhe o texto antes de enviar pelo WhatsApp</p>
+<textarea id="shareText" style="min-height:130px"></textarea>
+<div style="display:flex;gap:10px;margin-top:12px">
+<button class="whats" style="flex:1" onclick="confirmShare()">Enviar pelo WhatsApp</button>
+<button class="secondary" onclick="closeShare()">Cancelar</button>
+</div>
+</div>
+</div>
+
+<div id="lightbox" class="lightbox hidden" onclick="closeLight()">
+<div style="position:relative;display:grid;place-items:center">
+<img id="lightImg" src="">
+<div style="display:flex;gap:10px;justify-content:center;margin-top:12px">
+<button class="secondary" onclick="lightPrev(event)">◀</button>
+<span id="lightCount" class="muted"></span>
+<button class="secondary" onclick="lightNext(event)">▶</button>
+<button class="secondary" onclick="closeLight()">Fechar</button>
+</div>
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let user=JSON.parse(localStorage.getItem('mwapp_user')||'null');
+let store=JSON.parse(localStorage.getItem('mwapp_store')||'null');
+let products=JSON.parse(localStorage.getItem('mwapp_products')||'[]');
+let channels=JSON.parse(localStorage.getItem('mwapp_channels')||'{"fb":false,"ig":false,"mk":false}');
+let lightList=[], lightIdx=0;
+
+function toast(m){const c=$('toast');const d=document.createElement('div');d.textContent=m;c.appendChild(d);setTimeout(()=>d.remove(),3500)}
+function save(){
+ try{
+ localStorage.setItem('mwapp_user',JSON.stringify(user));
+ localStorage.setItem('mwapp_store',JSON.stringify(store));
+ localStorage.setItem('mwapp_products',JSON.stringify(products));
+ localStorage.setItem('mwapp_channels',JSON.stringify(channels));
+ }catch(e){alert('Armazenamento cheio. Use imagens menores.')}
+}
+function go(id){
+ if(!user){showAuth();return}
+ ['home','dashboard','market','auth'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
+ if(id==='dashboard')loadDash();
+ if(id==='market')renderMarket();
+ window.scrollTo(0,0);
+}
+function showAuth(){['home','dashboard','market'].forEach(x=>$(x).classList.add('hidden'));$('auth').classList.remove('hidden')}
+function toggleAuth(){$('formSignup').classList.toggle('hidden');$('formLogin').classList.toggle('hidden')}
+function tab(t){
+ ['store','prod','divulga','canal'].forEach(x=>{const el=$('tab-'+x); if(el) el.classList.toggle('hidden',x!==t)});
+}
+function money(n){return Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+// AUTH
+$('formSignup').addEventListener('submit',e=>{
+ e.preventDefault();
+ const name=$('suName').value.trim(), email=$('suEmail').value.trim(), whats=$('suWhats').value.replace(/\D/g,''), pass=$('suPass').value, pass2=$('suPass2').value;
+ if(name.length<3||!email.includes('@')||whats.length<10||pass.length<6||pass!==pass2){toast('Verifique os campos');return}
+ user={name,email,whats,password:pass,createdAt:Date.now()};
+ save(); toast('Conta criada!'); updateUI(); go('home');
+});
+$('formLogin').addEventListener('submit',e=>{
+ e.preventDefault();
+ const email=$('liEmail').value.trim(), pass=$('liPass').value;
+ const saved=JSON.parse(localStorage.getItem('mwapp_user')||'null');
+ if(!saved||saved.email!==email||saved.password!==pass){toast('Email ou senha errados');return}
+ user=saved; updateUI(); go('home');
+});
+function logout(){localStorage.removeItem('mwapp_user');user=null;updateUI();showAuth()}
+function updateUI(){if(user){$('userName').textContent=user.name;$('btnLogout').style.display='inline-block'}else{$('userName').textContent='';$('btnLogout').style.display='none'}}
+
+// STORE - ORIGINAL + NOVO
+function loadDash(){
+ if(store){
+  $('storeName').value=store.name||''; $('storeWhats').value=store.whats||''; $('storeDesc').value=store.desc||''; $('storeColor').value=store.color||'#8b5cf6'; $('storeSlogan').value=store.slogan||''; $('storeCat').value=store.cat||''; $('storeCity').value=store.city||''; $('storeInsta').value=store.insta||''; $('divulgaLoja').value=store.divulgaLoja||''; $('divulgaProd').value=store.divulgaProd||'';
+  if(store.avatar){$('avPreview').innerHTML='<img src="'+store.avatar+'" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--line)">'}
+ }
+ renderMyProducts(); renderChannels();
+}
+$('storeAvatar').addEventListener('change',()=>{
+ const f=$('storeAvatar').files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{$('avPreview').innerHTML='<img src="'+r.result+'" style="width:70px;height:70px;border-radius:50%;object-fit:cover">'; $('avPreview').dataset.base=r.result}; r.readAsDataURL(f);
+});
+$('storeForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const avatar=$('avPreview').dataset.base||(store&&store.avatar)||'';
+ store={
+  name:$('storeName').value.trim(),
+  whats:$('storeWhats').value.replace(/\D/g,''),
+  desc:$('storeDesc').value.trim(),
+  color:$('storeColor').value,
+  slogan:$('storeSlogan').value.trim(),
+  cat:$('storeCat').value, city:$('storeCity').value.trim(), insta:$('storeInsta').value.trim(),
+  avatar, divulgaLoja:$('divulgaLoja').value.trim(), divulgaProd:$('divulgaProd').value.trim()
+ };
+ save(); document.documentElement.style.setProperty('--purple',store.color); toast('Loja salva!'); renderMarket();
+});
+
+// PRODUCT - ORIGINAL MANTIDA + SEM CORTE
+let selectedImgs=[];
+$('pImages').addEventListener('change',async ()=>{
+ const files=[...$('pImages').files];
+ if(files.length>5){alert('Máximo 5 fotos. Escolhendo as 5 primeiras.');}
+ const limited=files.slice(0,5);
+ $('imageCount').textContent=limited.length+' fotos selecionadas.';
+ const grid=$('previewGrid');
+ if(!grid) return;
+ grid.innerHTML='';
+ selectedImgs=[];
+ for(let i=0;i<limited.length;i++){
+  const f=limited[i];
+  const base=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
+  selectedImgs.push(base);
+  const div=document.createElement('div');
+  div.style.cssText='position:relative;border:1px solid #29293b;border-radius:12px;overflow:hidden;background:#0e0e18;padding:4px';
+  div.innerHTML='<img src="'+base+'" style="width:100%;height:80px;object-fit:contain"><div style="font-size:11px;text-align:center;color:#a1a1b5;margin-top:2px">Foto '+(i+1)+'</div><button type="button" style="position:absolute;top:2px;right:2px;padding:2px 6px;font-size:10px;background:#991b1b" onclick="this.parentElement.remove();selectedImgs.splice('+i+',1)">X</button>';
+  grid.appendChild(div);
+ }
+});
+  selectedImgs.push(base);
+  const div=document.createElement('div');
+  div.style.cssText='position:relative;border:1px solid #29293b;border-radius:12px;overflow:hidden;background:#0e0e18';
+  div.innerHTML='<img src="'+base+'" style="width:100%;height:80px;object-fit:contain"><button type="button" style="position:absolute;top:2px;right:2px;padding:2px 6px;font-size:10px;background:#991b1b" onclick="this.parentElement.remove()">X</button>';
+  grid.appendChild(div);
+ }
+});
+$('productForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(!store){toast('Salve os dados da loja primeiro.');return;}
+ let imgs=selectedImgs;
+ if(!imgs||!imgs.length){
+  const files=[...$('pImages').files].slice(0,5);
+  imgs=await Promise.all(files.map(f=>new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(f)})));
+ }
+ if(!imgs.length){toast('Adicione pelo menos 1 foto');return}
+ products.unshift({id:Date.now(),name:$('pName').value.trim(),price:Number($('pPrice').value),stock:Number($('pStock').value||0),desc:$('pDesc').value.trim(),imgs});
+ save(); e.target.reset(); $('pStock').value=1; $('imageCount').textContent='Nenhuma foto selecionada.'; const pg=$('previewGrid'); if(pg) pg.innerHTML=''; selectedImgs=[]; renderMyProducts(); renderMarket(); toast('Produto adicionado!');
+});
+
+function card(p,owner=false){
+ let thumbs='';
+ if(p.imgs&&p.imgs.length>1){
+  thumbs='<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">';
+  p.imgs.slice(0,5).forEach((img,i)=>{thumbs+=`<img src="${img}" style="width:40px;height:40px;object-fit:contain;background:#0e0e18;border-radius:8px;border:1px solid #29293b;cursor:pointer" onclick="openLight(${p.id},${i})">`});
+  thumbs+='</div>';
+ }
+ const image=p.imgs&&p.imgs.length?`<img src="${p.imgs[0]}" alt="${esc(p.name)}" onclick="openLight(${p.id},0)">`:'<div style="height:220px;display:grid;place-items:center;background:#0e0e18">📦</div>';
+ return `<article class="product">${image}${thumbs}<div class="productbody">
+ <h3>${esc(p.name)}</h3><p class="muted">${esc(p.desc).slice(0,90)}</p>
+ <div class="price">${money(p.price)}</div><p class="muted">Estoque: ${p.stock}</p>
+ ${owner?`<button class="danger" onclick="removeProduct(${p.id})">Excluir produto</button><button class="whats" onclick="shareProduct(${p.id})">Divulgar produto no WhatsApp</button>`:`<button class="whats" onclick="buy(${p.id})">💬 Comprar pelo WhatsApp</button>`}
+ </div></article>`;
+}
+function renderMyProducts(){$('myProducts').innerHTML=products.length?products.map(p=>card(p,true)).join(''):'<p class="muted">Você ainda não cadastrou produtos. .</p>';}
+function removeProduct(id){if(confirm('Excluir este produto?')){products=products.filter(p=>p.id!==id);save();renderMyProducts();renderMarket();}}
+function buy(id){
+ if(!store||!store.whats){toast('O vendedor ainda não configurou o WhatsApp.');return;}
+ const p=products.find(x=>x.id===id);
+ if(!p)return;
+ const msg='Olá! Tenho interesse em '+p.name+' por '+money(p.price)+'. Ainda está disponível?';
+ window.open('https://wa.me/'+store.whats+'?text='+encodeURIComponent(msg),'_blank');
+}
+function renderMarket(){
+ const q=($('search').value||'').toLowerCase();
+ if(store){
+  const av=store.avatar?`<img src="${store.avatar}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid white">`:`<div class="avatar">${esc((store.name||'L')[0])}</div>`;
+  $('storeHeader').innerHTML=`<div class="storehead" style="background:linear-gradient(120deg,${store.color||'#6d28d9'},#151525)">${av}<div style="flex:1"><h2 style="margin:0">${esc(store.name)}</h2><p style="margin:2px 0">${esc(store.slogan||'Sua loja online')}</p><p class="muted" style="margin:0;font-size:12px">${esc(store.cat||'')}${store.city?' - '+esc(store.city):''}</p></div><button class="whats" onclick="shareStoreCustom()">📲 Divulgar loja no WhatsApp</button></div>`;
+ } else {$('storeHeader').innerHTML='<p class="muted">Nenhuma loja ainda. Crie sua loja - .</p>'}
+ const list=products.filter(p=>!q||p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q));
+ $('marketProducts').innerHTML=list.length?list.map(p=>card(p,false)):'<p class="muted">Nenhum produto encontrado. Cadastre produtos primeiro.</p>';
+}
+function shareStore(){ if(!store)return; const url=location.href; if(navigator.share)navigator.share({title:store.name,text:store.desc,url}); else prompt('Copie o link:',url); }
+
+// NOVOS COMPLEMENTOS - DIVULGAÇÃO EDITÁVEL
+function saveDivulga(){if(!store)store={};store.divulgaLoja=$('divulgaLoja').value.trim();store.divulgaProd=$('divulgaProd').value.trim();save();toast('Textos de divulgação salvos!')}
+function shareStoreCustom(){
+ if(!store){toast('Crie sua loja primeiro');return}
+ const base=store.divulgaLoja||`Conheça minha loja ${store.name}! ${store.slogan||''}`;
+ openShare(base+'\n'+location.href);
+}
+function shareProduct(id){
+ const p=products.find(x=>x.id===id);
+ const base=(store&&store.divulgaProd)||`Olha esse produto: ${p.name} por ${money(p.price)}!`;
+ openShare(base+'\n'+location.href);
+}
+function openShare(txt){$('shareText').value=txt;$('modalShare').classList.remove('hidden')}
+function closeShare(){$('modalShare').classList.add('hidden')}
+function confirmShare(){const txt=$('shareText').value;window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');closeShare()}
+
+// LIGHTBOX - NOVO SEM CORTE
+function openLight(pid,idx){
+ const p=products.find(x=>x.id===pid); if(!p||!p.imgs||!p.imgs.length) return;
+ window._lightList=p.imgs; window._lightIdx=idx||0; updateLight(); $('lightbox').classList.remove('hidden');
+}
+function updateLight(){
+ $('lightImg').src=window._lightList[window._lightIdx];
+ $('lightCount').textContent=(window._lightIdx+1)+' / '+window._lightList.length;
+}
+function lightPrev(e){e.stopPropagation(); window._lightIdx=(window._lightIdx-1+window._lightList.length)%window._lightList.length; updateLight()}
+function lightNext(e){e.stopPropagation(); window._lightIdx=(window._lightIdx+1)%window._lightList.length; updateLight()}
+function closeLight(){$('lightbox').classList.add('hidden')}
+
+// FACEBOOK MARKETPLACE - NOVO
+function renderChannels(){
+ const c=$('channels'); if(!c) return;
+ c.innerHTML=`
+ <div class="panel" style="margin:10px 0"><h3>Facebook Page ${channels.fb?'✅ Conectado':''}</h3><p class="muted">${channels.fb?'Conectado':'Desconectado'}</p><button class="${channels.fb?'secondary':'whats'}" onclick="toggleChan('fb')">${channels.fb?'Desconectar':'Conectar Facebook'}</button></div>
+ <div class="panel" style="margin:10px 0"><h3>Instagram Shopping ${channels.ig?'✅':''}</h3><p class="muted">${channels.ig?'Conectado':'Desconectado'}</p><button class="${channels.ig?'secondary':'whats'}" onclick="toggleChan('ig')">${channels.ig?'Desconectar':'Conectar Instagram'}</button></div>
+ <div class="panel" style="margin:10px 0"><h3>Marketplace ${channels.mk?'✅':''}</h3><p class="muted">${channels.mk?'Conectado':'Desconectado'}</p><button class="${channels.mk?'secondary':'whats'}" onclick="toggleChan('mk')">${channels.mk?'Desconectar':'Conectar Marketplace'}</button></div>`;
+}
+function toggleChan(k){channels[k]=!channels[k];save();renderChannels();toast(channels[k]?'Conectado com Facebook!':'Desconectado')}
+function exportCSV(){
+ if(!products.length){toast('Nenhum produto');return}
+ let csv='id,title,description,price,availability,condition,image_link\n';
+ products.forEach(p=>{csv+=`${p.id},"${p.name.replace(/"/g,'""')}","${(p.desc||'').replace(/"/g,'""')}",${p.price},in stock,new,""${"\n"}`});
+ const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='mwapp_catalog.csv'; a.click();
+}
+
+// INIT - ORIGINAL MANTIDA + AUTH
+updateUI();
+if(user){$('auth').classList.add('hidden');$('home').classList.remove('hidden')}else{showAuth()}
+if(store&&store.color){document.documentElement.style.setProperty('--purple',store.color)}
+renderMarket();
+</script>
+</body>
+</html>
